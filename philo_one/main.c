@@ -6,16 +6,16 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/04 14:18:37 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/05 20:33:11 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/05 22:28:46 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "includes/philo_one.h"
+pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
 
 void	*test(void *arg)
 {
 	t_options	*opt;
-	int			*alive;
 	int			id;
 	struct		timeval tv;
 	struct		timeval tvb;
@@ -24,14 +24,13 @@ void	*test(void *arg)
 	int 		fcp;
 	int			forks;
 
-	alive = malloc(sizeof(int));
-	*alive = 1;
 	opt = (t_options *)arg;
 	pthread_mutex_lock(&g_lock);
 	id = g_id++;
 	pthread_mutex_unlock(&g_lock);
 	f1 = id - 1;
-	f2 = (id == opt->philo_n) ? 0 : id + 1;
+	f2 = (id == opt->philo_n) ? 0 : id;
+	//printf("%d - %d\n", f1, f2);
 	forks = 0;
 	if (id % 2)
 	{
@@ -40,7 +39,7 @@ void	*test(void *arg)
 		f2 = fcp;
 	}
 	gettimeofday(&tvb, NULL);
-	while (*alive == 1)
+	while (1)
 	{
 		if (g_forks[f1])
 		{
@@ -75,45 +74,30 @@ void	*test(void *arg)
 			usleep(opt->time_s);
 			gettimeofday(&tv, NULL);
 			printf("%ld %d is thinking\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000), id);
-			//*alive = 0;
 		}
 		else
 			gettimeofday(&tv, NULL);	
 		if (((tv.tv_sec * 1000) + (tv.tv_usec / 1000)) - ((tvb.tv_sec * 1000) + (tvb.tv_usec / 1000)) > opt->time_d)
 		{
-			//*alive = 0;
 			pthread_mutex_lock(&g_lock);
 			g_alive = 0;
 			printf("%ld %d died\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000), id);
-			//pthread_mutex_unlock(&g_lock);
-			//return (alive);
 		}
 	}
-	return (alive);
+	return (NULL);
 }
 
 void	create_threads(t_options *opt)
 {
 	pthread_t	*philo;
 	int			i;
-	int			*alive;
 
-	alive = malloc(sizeof(int));
-	*alive = 1;
 	i = -1;
 	philo = malloc(sizeof(pthread_t) * opt->philo_n);
 	if (!philo)
 		return ;
 	while (++i < opt->philo_n)
 		pthread_create(&philo[i], NULL, test, opt);
-	//i = -1;
-	//while (++i < opt->philo_n)
-	//{
-	//	pthread_join(philo[0], (void *)&alive);
-	//	if (g_alive ==0)
-	//		break ;
-	//}
-	//printf("test\n");
 	while (g_alive)
 		usleep(1);
 }

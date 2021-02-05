@@ -15,8 +15,7 @@ typedef struct	s_options
 	int	time_s;
 }				t_options;
 
-
-pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
+//pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
 int*	g_forks;
 int		g_id;
 int		g_alive;

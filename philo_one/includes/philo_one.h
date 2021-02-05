@@ -15,8 +15,11 @@ typedef struct	s_options
 	int	time_s;
 }				t_options;
 
-int		g_forks;
+
+pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
+int*	g_forks;
 int		g_id;
+int		g_alive;
 
 int		ft_atoi(const char *str);
 int		is_num(int argc, char **argv);

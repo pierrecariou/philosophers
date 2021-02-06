@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/04 14:18:37 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/05 22:28:46 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/06 12:05:27 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,16 +22,13 @@ void	*test(void *arg)
 	int 		f1;
 	int 		f2;
 	int 		fcp;
-	int			forks;
 
 	opt = (t_options *)arg;
-	pthread_mutex_lock(&g_lock);
-	id = g_id++;
-	pthread_mutex_unlock(&g_lock);
+	pthread_mutex_lock(&opt->locks[0]);
+	id = opt->philo_id++;
+	pthread_mutex_unlock(&opt->locks[0]);
 	f1 = id - 1;
 	f2 = (id == opt->philo_n) ? 0 : id;
-	//printf("%d - %d\n", f1, f2);
-	forks = 0;
 	if (id % 2)
 	{
 		fcp = f1;
@@ -41,47 +38,28 @@ void	*test(void *arg)
 	gettimeofday(&tvb, NULL);
 	while (1)
 	{
-		if (g_forks[f1])
-		{
-			pthread_mutex_lock(&g_lock);
-			g_forks[f1] = 0;
-			pthread_mutex_unlock(&g_lock);
-			gettimeofday(&tv, NULL);
-			printf("%ld %d has taken a fork\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000) , id);
-			forks++;
-		}
-		if (g_forks[f2])
-		{
-			pthread_mutex_lock(&g_lock);
-			g_forks[f2] = 0;
-			pthread_mutex_unlock(&g_lock);
-			gettimeofday(&tv, NULL);
-			printf("%ld %d has taken a fork\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000) , id);
-			forks++;
-		}
-		if (forks == 2)
-		{
-			forks = 0;
-			gettimeofday(&tvb, NULL);
-			printf("%ld %d is eating\n", (tvb.tv_sec * 1000) + (tvb.tv_usec / 1000), id);
-			usleep(opt->time_e);
-			pthread_mutex_lock(&g_lock);
-			g_forks[f1] = 1;
-			g_forks[f2] = 1;
-			pthread_mutex_unlock(&g_lock);
-			gettimeofday(&tv, NULL);
-			printf("%ld %d is sleeping\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000), id);
-			usleep(opt->time_s);
-			gettimeofday(&tv, NULL);
-			printf("%ld %d is thinking\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000), id);
-		}
-		else
-			gettimeofday(&tv, NULL);	
+		pthread_mutex_lock(&opt->locks[f1]);
+		gettimeofday(&tv, NULL);
+		printf("%ld %d has taken a fork\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000) , id);
+		pthread_mutex_lock(&opt->locks[f2]);
+		gettimeofday(&tv, NULL);
+		printf("%ld %d has taken a fork\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000) , id);
+		gettimeofday(&tvb, NULL);
+		printf("%ld %d is eating\n", (tvb.tv_sec * 1000) + (tvb.tv_usec / 1000), id);
+		usleep(opt->time_e);
+		pthread_mutex_unlock(&opt->locks[f1]);
+		pthread_mutex_unlock(&opt->locks[f2]);
+		gettimeofday(&tv, NULL);
+		printf("%ld %d is sleeping\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000), id);
+		usleep(opt->time_s);
+		gettimeofday(&tv, NULL);
+		printf("%ld %d is thinking\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000), id);
 		if (((tv.tv_sec * 1000) + (tv.tv_usec / 1000)) - ((tvb.tv_sec * 1000) + (tvb.tv_usec / 1000)) > opt->time_d)
 		{
-			pthread_mutex_lock(&g_lock);
-			g_alive = 0;
+			pthread_mutex_lock(&opt->locks[f1]);
+			pthread_mutex_lock(&opt->locks[f2]);
 			printf("%ld %d died\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000), id);
+			g_alive = 0;
 		}
 	}
 	return (NULL);
@@ -125,12 +103,12 @@ int		main(int argc, char **argv)
 	opt->time_d = ft_atoi(argv[2]);
 	opt->time_e = ft_atoi(argv[3]) * 1000;
 	opt->time_s = ft_atoi(argv[4]) * 1000;
-	g_forks = malloc(sizeof(int) * opt->philo_n);
-	if (!g_forks)
+	opt->philo_id = 1;
+	opt->locks = malloc(sizeof(pthread_mutex_t) * opt->philo_n);
+	if (!opt->locks)
 		return (1);
 	while (i < opt->philo_n)
-		g_forks[i++] = 1;
-	g_id = 1;
+		pthread_mutex_init(&opt->locks[i++], NULL);
 	g_alive = 1;
 	create_threads(opt);
 	return (0);

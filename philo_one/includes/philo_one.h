@@ -13,11 +13,10 @@ typedef struct	s_options
 	int	time_d;
 	int time_e;
 	int	time_s;
+	int	philo_id;
+	pthread_mutex_t *locks;
 }				t_options;
 
-//pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
-int*	g_forks;
-int		g_id;
 int		g_alive;
 
 int		ft_atoi(const char *str);

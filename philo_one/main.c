@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/04 14:18:37 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/06 14:45:05 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/06 16:49:10 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,14 @@
 
 void	dead_or_alive(struct timeval tv, struct timeval tvb, int id, t_options *opt)
 {
-		if (((tv.tv_sec * 1000) + (tv.tv_usec / 1000)) - ((tvb.tv_sec * 1000) + (tvb.tv_usec / 1000)) > opt->time_d)
-		{
-			pthread_mutex_lock(&opt->locks[opt->philo_n]);
-			printf("%ld %d died\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000), id);
-			g_alive = 0;
-			while (1)
-				usleep(1);
-		}
+	if (((tv.tv_sec * 1000) + (tv.tv_usec / 1000)) - ((tvb.tv_sec * 1000) + (tvb.tv_usec / 1000)) > opt->time_d)
+	{
+		pthread_mutex_lock(&opt->locks[opt->philo_n]);
+		printf("%ld %d died\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000), id);
+		g_alive = 0;
+		while (1)
+			usleep(1);
+	}
 }
 
 void	*test(void *arg)
@@ -86,6 +86,21 @@ void	*test(void *arg)
 	return (NULL);
 }
 
+void	free_all(t_options *opt, pthread_t *philo)
+{
+	int	i;
+
+	i = 0;
+	while (i < opt->philo_n + 1)
+		pthread_mutex_destroy(&opt->locks[i++]);
+	free(opt->locks);
+	free(opt);
+	//i = 0;
+	//while (i < opt->philo_n)
+	//	pthread_detach(philo[i++]);
+	free(philo);
+}
+
 void	create_threads(t_options *opt)
 {
 	pthread_t	*philo;
@@ -99,6 +114,7 @@ void	create_threads(t_options *opt)
 		pthread_create(&philo[i], NULL, test, opt);
 	while (g_alive)
 		usleep(1);
+	free_all(opt, philo);
 }
 
 int		main(int argc, char **argv)

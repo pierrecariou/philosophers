@@ -6,12 +6,23 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/04 14:18:37 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/06 12:05:27 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/06 14:12:51 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "includes/philo_one.h"
-pthread_mutex_t g_lock = PTHREAD_MUTEX_INITIALIZER;
+
+void	dead_or_alive(struct timeval tv, struct timeval tvb, int id, t_options *opt)
+{
+		if (((tv.tv_sec * 1000) + (tv.tv_usec / 1000)) - ((tvb.tv_sec * 1000) + (tvb.tv_usec / 1000)) > opt->time_d)
+		{
+			pthread_mutex_lock(&opt->locks[opt->philo_n]);
+			printf("%ld %d died\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000), id);
+			g_alive = 0;
+			while (1)
+				usleep(1);
+		}
+}
 
 void	*test(void *arg)
 {
@@ -40,27 +51,34 @@ void	*test(void *arg)
 	{
 		pthread_mutex_lock(&opt->locks[f1]);
 		gettimeofday(&tv, NULL);
+		dead_or_alive(tv, tvb, id, opt);
+		pthread_mutex_lock(&opt->locks[opt->philo_n]);
 		printf("%ld %d has taken a fork\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000) , id);
+		pthread_mutex_unlock(&opt->locks[opt->philo_n]);
 		pthread_mutex_lock(&opt->locks[f2]);
 		gettimeofday(&tv, NULL);
+		dead_or_alive(tv, tvb, id, opt);
+		pthread_mutex_lock(&opt->locks[opt->philo_n]);
 		printf("%ld %d has taken a fork\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000) , id);
+		pthread_mutex_unlock(&opt->locks[opt->philo_n]);
 		gettimeofday(&tvb, NULL);
+		pthread_mutex_lock(&opt->locks[opt->philo_n]);
 		printf("%ld %d is eating\n", (tvb.tv_sec * 1000) + (tvb.tv_usec / 1000), id);
+		pthread_mutex_unlock(&opt->locks[opt->philo_n]);
 		usleep(opt->time_e);
 		pthread_mutex_unlock(&opt->locks[f1]);
 		pthread_mutex_unlock(&opt->locks[f2]);
 		gettimeofday(&tv, NULL);
+		dead_or_alive(tv, tvb, id, opt);
+		pthread_mutex_lock(&opt->locks[opt->philo_n]);
 		printf("%ld %d is sleeping\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000), id);
+		pthread_mutex_unlock(&opt->locks[opt->philo_n]);
 		usleep(opt->time_s);
 		gettimeofday(&tv, NULL);
+		dead_or_alive(tv, tvb, id, opt);
+		pthread_mutex_lock(&opt->locks[opt->philo_n]);
 		printf("%ld %d is thinking\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000), id);
-		if (((tv.tv_sec * 1000) + (tv.tv_usec / 1000)) - ((tvb.tv_sec * 1000) + (tvb.tv_usec / 1000)) > opt->time_d)
-		{
-			pthread_mutex_lock(&opt->locks[f1]);
-			pthread_mutex_lock(&opt->locks[f2]);
-			printf("%ld %d died\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000), id);
-			g_alive = 0;
-		}
+		pthread_mutex_unlock(&opt->locks[opt->philo_n]);
 	}
 	return (NULL);
 }
@@ -104,10 +122,10 @@ int		main(int argc, char **argv)
 	opt->time_e = ft_atoi(argv[3]) * 1000;
 	opt->time_s = ft_atoi(argv[4]) * 1000;
 	opt->philo_id = 1;
-	opt->locks = malloc(sizeof(pthread_mutex_t) * opt->philo_n);
+	opt->locks = malloc(sizeof(pthread_mutex_t) * (opt->philo_n + 1));
 	if (!opt->locks)
 		return (1);
-	while (i < opt->philo_n)
+	while (i < opt->philo_n + 1)
 		pthread_mutex_init(&opt->locks[i++], NULL);
 	g_alive = 1;
 	create_threads(opt);

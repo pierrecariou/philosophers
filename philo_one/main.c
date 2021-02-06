@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/04 14:18:37 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/06 14:12:51 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/06 14:45:05 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,9 @@ void	*test(void *arg)
 		pthread_mutex_lock(&opt->locks[opt->philo_n]);
 		printf("%ld %d is thinking\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000), id);
 		pthread_mutex_unlock(&opt->locks[opt->philo_n]);
+		usleep(opt->time_s / 100);
+		gettimeofday(&tv, NULL);
+		dead_or_alive(tv, tvb, id, opt);
 	}
 	return (NULL);
 }

@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 01:32:35 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/07 21:48:54 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/08 13:15:37 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,12 +47,15 @@ void	actions(struct timeval *tv, int id, t_options *opt)
 	printf("%ld %d is eating\n", (tv[0].tv_sec * 1000)
 	+ (tv[0].tv_usec / 1000), id);
 	sem_post(opt->sem_sent);
+	die_while_eating(tv, id, opt);
 	usleep(opt->time_e);
 	sem_post(opt->sem);
 	sem_post(opt->sem);
 	action(tv, id, opt, "is sleeping");
+	die_in_action(tv, id, opt, opt->time_s);
 	usleep(opt->time_s);
 	action(tv, id, opt, "is thinking");
+	die_in_action(tv, id, opt, opt->time_s / 100);
 	usleep(opt->time_s / 100);
 	gettimeofday(&tv[1], NULL);
 	dead_or_alive(tv[1], tv[0], id, opt);

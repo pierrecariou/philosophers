@@ -6,20 +6,20 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 01:32:35 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/07 18:54:39 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/08 13:14:11 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "includes/philo_one.h"
 
-void	dead_or_alive(struct timeval tv, struct timeval tvb,
-		int id, t_options *opt)
+void	dead_or_alive(struct timeval *tv, int id, t_options *opt)
 {
-	if (((tv.tv_sec * 1000) + (tv.tv_usec / 1000)) -
-			((tvb.tv_sec * 1000) + (tvb.tv_usec / 1000)) > opt->time_d)
+	if (((tv[1].tv_sec * 1000) + (tv[1].tv_usec / 1000)) -
+			((tv[0].tv_sec * 1000) + (tv[0].tv_usec / 1000)) > opt->time_d)
 	{
 		pthread_mutex_lock(&opt->locks[opt->philo_n]);
-		printf("%ld %d died\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000), id);
+		printf("%ld %d died\n", (tv[1].tv_sec * 1000) +
+		(tv[1].tv_usec / 1000), id);
 		g_alive = 0;
 		while (1)
 			usleep(1);
@@ -43,7 +43,7 @@ void	my_forks(int *f, int id, t_options *opt)
 void	action(struct timeval *tv, int id, t_options *opt, char *str)
 {
 	gettimeofday(&tv[1], NULL);
-	dead_or_alive(tv[1], tv[0], id, opt);
+	dead_or_alive(tv, id, opt);
 	pthread_mutex_lock(&opt->locks[opt->philo_n]);
 	printf("%ld %d %s\n", (tv[1].tv_sec * 1000) +
 	(tv[1].tv_usec / 1000), id, str);
@@ -61,15 +61,18 @@ void	actions(struct timeval *tv, int id, t_options *opt, int *f)
 	printf("%ld %d is eating\n", (tv[0].tv_sec * 1000)
 	+ (tv[0].tv_usec / 1000), id);
 	pthread_mutex_unlock(&opt->locks[opt->philo_n]);
+	die_while_eating(tv, id, opt);
 	usleep(opt->time_e);
 	pthread_mutex_unlock(&opt->locks[f[0]]);
 	pthread_mutex_unlock(&opt->locks[f[1]]);
 	action(tv, id, opt, "is sleeping");
+	die_in_action(tv, id, opt, opt->time_s);
 	usleep(opt->time_s);
 	action(tv, id, opt, "is thinking");
+	die_in_action(tv, id, opt, opt->time_s / 100);
 	usleep(opt->time_s / 100);
 	gettimeofday(&tv[1], NULL);
-	dead_or_alive(tv[1], tv[0], id, opt);
+	dead_or_alive(tv, id, opt);
 }
 
 void	*philosopher(void *arg)

@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 01:35:13 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/08 01:26:59 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/08 13:26:01 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,5 +40,9 @@ typedef struct		s_options
 int					ft_atoi(const char *str);
 int					is_num(int argc, char **argv);
 void				*philosopher(void *arg);
+void				die_while_eating(struct timeval *tv,
+					int id, t_options *opt);
+void				die_in_action(struct timeval *tv, int id,
+					t_options *opt, int time_a);
 
 #endif

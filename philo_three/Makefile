@@ -6,7 +6,7 @@
 #    By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/02/03 15:02:53 by pcariou           #+#    #+#              #
-#    Updated: 2021/02/07 01:33:19 by pcariou          ###   ########.fr        #
+#    Updated: 2021/02/08 13:24:58 by pcariou          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,6 +16,7 @@ HEADER		= ./
 
 SRCS		=	main.c \
 				philosopher.c \
+				die_in_action.c \
 				utils.c
 
 OBJS		= $(SRCS:.c=.o)

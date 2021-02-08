@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 01:35:13 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/07 21:48:15 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/08 13:16:56 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,5 +38,9 @@ int					g_alive;
 int					ft_atoi(const char *str);
 int					is_num(int argc, char **argv);
 void				*philosopher(void *arg);
+void				die_while_eating(struct timeval *tv,
+					int id, t_options *opt);
+void				die_in_action(struct timeval *tv, int id,
+					t_options *opt, int time_a);
 
 #endif

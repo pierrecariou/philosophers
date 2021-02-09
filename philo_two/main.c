@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/04 14:18:37 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/07 21:48:07 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/09 18:34:31 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,9 @@ void	create_threads(t_options *opt)
 		return ;
 	while (++i < opt->philo_n)
 		pthread_create(&philo[i], NULL, philosopher, opt);
-	while (g_alive)
-		usleep(1);
+	i = -1;
+	while (++i < opt->philo_n)
+		pthread_join(philo[i], NULL);
 	free_all(opt, philo);
 }
 

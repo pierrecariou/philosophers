@@ -6,11 +6,11 @@
 #    By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/02/03 15:02:53 by pcariou           #+#    #+#              #
-#    Updated: 2021/02/08 13:12:46 by pcariou          ###   ########.fr        #
+#    Updated: 2021/02/09 18:17:50 by pcariou          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME		= philo_one
+NAME		= philo_two
 
 HEADER		= ./
 

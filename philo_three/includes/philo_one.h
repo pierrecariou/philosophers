@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 01:35:13 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/08 13:26:01 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/10 17:29:16 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 # include <stdlib.h>
 # include <sys/time.h>
 # include <sys/types.h>
+# include <sys/wait.h>
 # include <signal.h>
 
 typedef struct		s_options
@@ -31,18 +32,18 @@ typedef struct		s_options
 	int				time_e;
 	int				time_s;
 	int				philo_id;
+	int				*pid;
 	sem_t			*sem;
 	sem_t			*sem_sent;
 	sem_t			*sem_died;
-	int				*pid;
 }					t_options;
 
 int					ft_atoi(const char *str);
 int					is_num(int argc, char **argv);
-void				*philosopher(void *arg);
 void				die_while_eating(struct timeval *tv,
 					int id, t_options *opt);
 void				die_in_action(struct timeval *tv, int id,
 					t_options *opt, int time_a);
+void				philosopher(t_options *opt, int id);
 
 #endif

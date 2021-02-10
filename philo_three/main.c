@@ -6,40 +6,45 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/04 14:18:37 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/08 01:40:22 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/10 17:29:57 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "includes/philo_one.h"
 
-void	free_all(t_options *opt, pthread_t *philo)
+void	free_all(t_options *opt)
 {
 	int i;
 
 	i = 0;
-	free(philo);
-	sem_close(opt->sem);
-	sem_close(opt->sem_sent);
-	sem_close(opt->sem_died);
 	while (i < opt->philo_n)
 		kill(opt->pid[i++], SIGKILL);
 	free(opt->pid);
+	sem_close(opt->sem);
+	sem_close(opt->sem_sent);
+	sem_close(opt->sem_died);
 	free(opt);
 }
 
-void	create_threads(t_options *opt)
+void	create_processes(t_options *opt)
 {
-	pthread_t	*philo;
 	int			i;
 
 	i = -1;
-	philo = malloc(sizeof(pthread_t) * opt->philo_n);
-	if (!philo)
-		return ;
 	while (++i < opt->philo_n)
-		pthread_create(&philo[i], NULL, philosopher, opt);
+		opt->pid[i] = 1;
+	i = -1;
+	while (++i < opt->philo_n)
+	{
+		if (i > 0 && opt->pid[i - 1] == 0)
+			philosopher(opt, i);
+		else
+			opt->pid[i] = fork();
+	}
+	if (opt->pid[i - 1] == 0)
+		philosopher(opt, i);
 	sem_wait(opt->sem_died);
-	free_all(opt, philo);
+	free_all(opt);
 }
 
 int		error_msgs(int argc, char **argv)
@@ -86,6 +91,6 @@ int		main(int argc, char **argv)
 	opt->pid = malloc(sizeof(int) * opt->philo_n);
 	if (!opt->pid)
 		return (1);
-	create_threads(opt);
+	create_processes(opt);
 	return (0);
 }

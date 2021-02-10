@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 01:32:35 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/08 13:24:22 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/10 17:30:08 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,22 +61,12 @@ void	actions(struct timeval *tv, int id, t_options *opt)
 	dead_or_alive(tv[1], tv[0], id, opt);
 }
 
-void	*philosopher(void *arg)
+void	philosopher(t_options *opt, int id)
 {
-	t_options		*opt;
-	int				id;
 	struct timeval	tv[2];
 
-	opt = (t_options *)arg;
-	sem_wait(opt->sem_sent);
-	id = opt->philo_id++;
-	sem_post(opt->sem_sent);
-	opt->pid[id - 1] = fork();
-	if (opt->pid[id - 1] == 0)
-	{
-		gettimeofday(&tv[0], NULL);
-		while (1)
-			actions(tv, id, opt);
-	}
-	return (NULL);
+	gettimeofday(&tv[0], NULL);
+	while (1)
+		actions(tv, id, opt);
+	exit(0);
 }

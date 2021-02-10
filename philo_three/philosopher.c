@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 01:32:35 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/10 17:30:08 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/11 00:09:23 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,16 @@
 void	dead_or_alive(struct timeval tv, struct timeval tvb,
 		int id, t_options *opt)
 {
+	int i;
+
+	i = -1;
 	if (((tv.tv_sec * 1000) + (tv.tv_usec / 1000)) -
 			((tvb.tv_sec * 1000) + (tvb.tv_usec / 1000)) > opt->time_d)
 	{
 		sem_wait(opt->sem_sent);
 		printf("%ld %d died\n", (tv.tv_sec * 1000) + (tv.tv_usec / 1000), id);
-		sem_post(opt->sem_died);
+		while (++i < opt->philo_n)
+			sem_post(opt->sem_died);
 		while (1)
 			usleep(1);
 	}
@@ -51,6 +55,7 @@ void	actions(struct timeval *tv, int id, t_options *opt)
 	usleep(opt->time_e);
 	sem_post(opt->sem);
 	sem_post(opt->sem);
+	nme(opt, id);
 	action(tv, id, opt, "is sleeping");
 	die_in_action(tv, id, opt, opt->time_s);
 	usleep(opt->time_s);

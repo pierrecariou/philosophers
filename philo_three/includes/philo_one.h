@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 01:35:13 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/10 17:29:16 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/11 00:09:38 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,8 @@ typedef struct		s_options
 	int				time_s;
 	int				philo_id;
 	int				*pid;
+	int				is_nme;
+	int				*nme;
 	sem_t			*sem;
 	sem_t			*sem_sent;
 	sem_t			*sem_died;
@@ -45,5 +47,6 @@ void				die_while_eating(struct timeval *tv,
 void				die_in_action(struct timeval *tv, int id,
 					t_options *opt, int time_a);
 void				philosopher(t_options *opt, int id);
+void				nme(t_options *opt, int id);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/04 14:18:37 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/10 17:29:57 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/11 00:14:36 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@ void	free_all(t_options *opt)
 	sem_close(opt->sem);
 	sem_close(opt->sem_sent);
 	sem_close(opt->sem_died);
+	if (opt->is_nme)
+		free(opt->nme);
 	free(opt);
 }
 
@@ -43,16 +45,23 @@ void	create_processes(t_options *opt)
 	}
 	if (opt->pid[i - 1] == 0)
 		philosopher(opt, i);
-	sem_wait(opt->sem_died);
+	i = -1;
+	while (++i < opt->philo_n)
+		sem_wait(opt->sem_died);
 	free_all(opt);
 }
 
 int		error_msgs(int argc, char **argv)
 {
-	if (argc != 5)
+	if (argc != 5 && argc != 6)
 	{
 		printf("Invalid number of arguments\n");
 		return (2);
+	}
+	if (argc == 6 && ft_atoi(argv[5]) == 0)
+	{
+		printf("Philosophers must eat at least one time\n");
+		return (5);
 	}
 	if (!is_num(argc, argv))
 	{
@@ -65,6 +74,24 @@ int		error_msgs(int argc, char **argv)
 		return (3);
 	}
 	return (0);
+}
+
+void	init_nme(int argc, char **argv, t_options *opt)
+{
+	int i;
+
+	i = -1;
+	if (argc == 6)
+	{
+		opt->is_nme = 1;
+		opt->nme = malloc(sizeof(int) * opt->philo_n);
+		if (!opt->nme)
+			return ;
+		while (++i < opt->philo_n)
+			opt->nme[i] = ft_atoi(argv[5]);
+	}
+	else
+		opt->is_nme = 0;
 }
 
 int		main(int argc, char **argv)
@@ -91,6 +118,7 @@ int		main(int argc, char **argv)
 	opt->pid = malloc(sizeof(int) * opt->philo_n);
 	if (!opt->pid)
 		return (1);
+	init_nme(argc, argv, opt);
 	create_processes(opt);
 	return (0);
 }

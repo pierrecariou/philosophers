@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/04 14:18:37 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/10 23:20:59 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/11 00:15:25 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ void	free_all(t_options *opt, pthread_t *philo)
 	free(philo);
 	sem_close(opt->sem);
 	sem_close(opt->sem_sent);
+	if (opt->is_nme)
+		free(opt->nme);
 	free(opt);
 }
 

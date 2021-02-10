@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/04 14:18:37 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/09 18:09:48 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/10 20:54:32 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ void	free_all(t_options *opt, pthread_t *philo)
 	while (i < opt->philo_n + 1)
 		pthread_mutex_destroy(&opt->locks[i++]);
 	free(opt->locks);
+	if (opt->is_nme)
+		free(opt->nme);
 	free(opt);
 }
 
@@ -43,10 +45,15 @@ void	create_threads(t_options *opt)
 
 int		error_msgs(int argc, char **argv)
 {
-	if (argc != 5)
+	if (argc != 5 && argc != 6)
 	{
 		printf("Invalid number of arguments\n");
 		return (2);
+	}
+	if (argc == 6 && ft_atoi(argv[5]) == 0)
+	{
+		printf("Philosophers must eat at least one time\n");
+		return (5);
 	}
 	if (!is_num(argc, argv))
 	{
@@ -59,6 +66,24 @@ int		error_msgs(int argc, char **argv)
 		return (3);
 	}
 	return (0);
+}
+
+void	init_nme(int argc, char **argv, t_options *opt)
+{
+	int i;
+
+	i = -1;
+	if (argc == 6)
+	{
+		opt->is_nme = 1;
+		opt->nme = malloc(sizeof(int) * opt->philo_n);
+		if (!opt->nme)
+			return ;
+		while (++i < opt->philo_n)
+			opt->nme[i] = ft_atoi(argv[5]);
+	}
+	else
+		opt->is_nme = 0;
 }
 
 int		main(int argc, char **argv)
@@ -83,6 +108,7 @@ int		main(int argc, char **argv)
 		return (1);
 	while (i < opt->philo_n + 1)
 		pthread_mutex_init(&opt->locks[i++], NULL);
+	init_nme(argc, argv, opt);
 	g_alive = 1;
 	create_threads(opt);
 	return (0);

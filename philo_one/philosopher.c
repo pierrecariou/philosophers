@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 01:32:35 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/09 18:09:30 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/10 20:51:33 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void	action(struct timeval *tv, int id, t_options *opt, char *str)
 	pthread_mutex_unlock(&opt->locks[opt->philo_n]);
 }
 
-void	actions(struct timeval *tv, int id, t_options *opt, int *f)
+int		actions(struct timeval *tv, int id, t_options *opt, int *f)
 {
 	pthread_mutex_lock(&opt->locks[f[0]]);
 	action(tv, id, opt, "has taken a fork");
@@ -59,15 +59,11 @@ void	actions(struct timeval *tv, int id, t_options *opt, int *f)
 	action(tv, id, opt, "has taken a fork");
 	gettimeofday(&tv[0], NULL);
 	pthread_mutex_lock(&opt->locks[opt->philo_n]);
-	if (g_alive)
-		printf("%ld %d is eating\n", (tv[0].tv_sec * 1000)
-		+ (tv[0].tv_usec / 1000), id);
-	pthread_mutex_unlock(&opt->locks[opt->philo_n]);
-	die_while_eating(tv, id, opt);
-	if (g_alive)
-		usleep(opt->time_e);
+	eating(tv, id, opt);
 	pthread_mutex_unlock(&opt->locks[f[0]]);
 	pthread_mutex_unlock(&opt->locks[f[1]]);
+	if (nme(opt, id))
+		return (1);
 	action(tv, id, opt, "is sleeping");
 	die_in_action(tv, id, opt, opt->time_s);
 	if (g_alive)
@@ -78,6 +74,7 @@ void	actions(struct timeval *tv, int id, t_options *opt, int *f)
 		usleep(opt->time_s / 100);
 	gettimeofday(&tv[1], NULL);
 	dead_or_alive(tv, id, opt);
+	return (0);
 }
 
 void	*philosopher(void *arg)
@@ -94,6 +91,9 @@ void	*philosopher(void *arg)
 	my_forks(f, id, opt);
 	gettimeofday(&tv[0], NULL);
 	while (g_alive)
-		actions(tv, id, opt, f);
+	{
+		if (actions(tv, id, opt, f))
+			break ;
+	}
 	return (NULL);
 }

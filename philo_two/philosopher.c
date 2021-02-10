@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/07 01:32:35 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/09 18:35:51 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/10 23:29:47 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ void	action(struct timeval *tv, int id, t_options *opt, char *str)
 	sem_post(opt->sem_sent);
 }
 
-void	actions(struct timeval *tv, int id, t_options *opt)
+int		actions(struct timeval *tv, int id, t_options *opt)
 {
 	sem_wait(opt->sem);
 	action(tv, id, opt, "has taken a fork");
@@ -46,15 +46,11 @@ void	actions(struct timeval *tv, int id, t_options *opt)
 	action(tv, id, opt, "has taken a fork");
 	gettimeofday(&tv[0], NULL);
 	sem_wait(opt->sem_sent);
-	if (g_alive)
-		printf("%ld %d is eating\n", (tv[0].tv_sec * 1000)
-		+ (tv[0].tv_usec / 1000), id);
-	sem_post(opt->sem_sent);
-	die_while_eating(tv, id, opt);
-	if (g_alive)
-		usleep(opt->time_e);
+	eating(tv, id, opt);
 	sem_post(opt->sem);
 	sem_post(opt->sem);
+	if (nme(opt, id))
+		return (1);
 	action(tv, id, opt, "is sleeping");
 	die_in_action(tv, id, opt, opt->time_s);
 	if (g_alive)
@@ -65,6 +61,7 @@ void	actions(struct timeval *tv, int id, t_options *opt)
 		usleep(opt->time_s / 100);
 	gettimeofday(&tv[1], NULL);
 	dead_or_alive(tv[1], tv[0], id, opt);
+	return (0);
 }
 
 void	*philosopher(void *arg)
@@ -79,6 +76,9 @@ void	*philosopher(void *arg)
 	sem_post(opt->sem_sent);
 	gettimeofday(&tv[0], NULL);
 	while (g_alive)
-		actions(tv, id, opt);
+	{
+		if (actions(tv, id, opt))
+			break ;
+	}
 	return (NULL);
 }

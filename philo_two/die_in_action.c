@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/08 13:11:23 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/09 18:35:28 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/10 23:28:47 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,4 +45,26 @@ void	die_in_action(struct timeval *tv, int id, t_options *opt, int time_a)
 		g_alive = 0;
 		sem_post(opt->sem_sent);
 	}
+}
+
+void	eating(struct timeval *tv, int id, t_options *opt)
+{
+	if (g_alive)
+		printf("%ld %d is eating\n", (tv[0].tv_sec * 1000)
+		+ (tv[0].tv_usec / 1000), id);
+	sem_post(opt->sem_sent);
+	die_while_eating(tv, id, opt);
+	if (g_alive)
+		usleep(opt->time_e);
+}
+
+int		nme(t_options *opt, int id)
+{
+	if (opt->is_nme)
+	{
+		opt->nme[id - 1]--;
+		if (!opt->nme[id - 1])
+			return (1);
+	}
+	return (0);
 }

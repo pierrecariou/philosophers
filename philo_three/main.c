@@ -6,7 +6,7 @@
 /*   By: pcariou <pcariou@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/02/04 14:18:37 by pcariou           #+#    #+#             */
-/*   Updated: 2021/02/11 00:14:36 by pcariou          ###   ########.fr       */
+/*   Updated: 2021/02/11 01:26:43 by pcariou          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,10 @@ void	create_processes(t_options *opt)
 		if (i > 0 && opt->pid[i - 1] == 0)
 			philosopher(opt, i);
 		else
+		{
 			opt->pid[i] = fork();
+			usleep(opt->time_s / 100);
+		}
 	}
 	if (opt->pid[i - 1] == 0)
 		philosopher(opt, i);

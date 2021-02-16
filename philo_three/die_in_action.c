@@ -19,7 +19,7 @@ void	die_while_eating(struct timeval *tv, int id, t_options *opt)
 	i = -1;
 	if (opt->time_d < (opt->time_e / 1000))
 	{
-		usleep(opt->time_d);
+		usleep(opt->time_d * 1000);
 		sem_wait(opt->sem_sent);
 		gettimeofday(&tv[1], NULL);
 		printf("%ld %d died\n", (tv[1].tv_sec * 1000) +
@@ -39,8 +39,9 @@ void	die_in_action(struct timeval *tv, int id, t_options *opt, int time_a)
 	if (((tv[1].tv_sec * 1000) + (tv[1].tv_usec / 1000) + (time_a / 1000)) -
 			((tv[0].tv_sec * 1000) + (tv[0].tv_usec / 1000)) > opt->time_d)
 	{
-		usleep(opt->time_d - (((tv[1].tv_sec * 1000) + (tv[1].tv_usec / 1000)) -
-		((tv[0].tv_sec * 1000) + (tv[0].tv_usec / 1000))));
+		usleep((opt->time_d * 1000) - ((((tv[1].tv_sec * 1000) +
+		(tv[1].tv_usec / 1000)) * 1000) - (((tv[0].tv_sec * 1000) +
+		(tv[0].tv_usec / 1000)) * 1000)));
 		sem_wait(opt->sem_sent);
 		gettimeofday(&tv[1], NULL);
 		printf("%ld %d died\n", (tv[1].tv_sec * 1000) +
